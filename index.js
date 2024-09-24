@@ -86,18 +86,17 @@ app.get("/api/get-users", (req, res) => {
 });
 
 // Get Products API Route
-app.get("/api/get-products", (req, res) => {
-  db.query(
-    "SELECT * FROM products",
-    (error, results) => {
-      if (error) {
-        console.error("Error selecting data:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-      } else {
-        res.json(results);
-      }
-    }
-  );
+app.get("/api/get-products", async (req, res) => {
+  try {
+    // Use await to get results from the promise-based query
+    const [results] = await db.query("SELECT * FROM products");
+
+    // Respond with the results
+    res.json(results);
+  } catch (error) {
+    console.error("Error selecting data:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 // Update Product API Route
