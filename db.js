@@ -1,11 +1,14 @@
 // db.js
 import mysql from "mysql2";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const db = mysql.createConnection({
-  host: 'srv915.hstgr.io',
-  user: 'u222886794_admin',
-  password: '_9VpyXfH2L6hiZH',
-  database: 'u222886794_wayawayadb'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
 export default db;
