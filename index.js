@@ -20,34 +20,64 @@ app.post('/api/login', async (req, res) => {
 
   try {
     // Query to get the user by username
-    db.query('SELECT * FROM users WHERE username = ?', [username], async (error, results) => {
-      if (error) {
-        console.error('Error fetching user:', error);
-        return res.status(500).json({ message: 'Internal server error' });
-      }
+    const [results] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
 
-      if (results.length === 0) {
-        return res.status(401).json({ message: 'Invalid username or password' });
-      }
+    if (results.length === 0) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
 
-      const user = results[0];
-      console.log(user)
+    const user = results[0];
+    console.log(user);
 
-      // Compare the provided password with the hashed password in the database
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ message: 'Invalid username or password' });
-      }
+    // Compare the provided password with the hashed password in the database
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
 
-      // Generate a token
-      const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '24h' });
-      return res.json({ token ,username: user.username , userType: user.type});
-    });
+    // Generate a token
+    const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '24h' });
+    return res.json({ token, username: user.username, userType: user.type });
   } catch (error) {
     console.error('Error logging in:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+// Login API Route
+// app.post('/api/login', async (req, res) => {
+//   const { username, password } = req.body;
+
+//   try {
+//     // Query to get the user by username
+//     db.query('SELECT * FROM users WHERE username = ?', [username], async (error, results) => {
+//       if (error) {
+//         console.error('Error fetching user:', error);
+//         return res.status(500).json({ message: 'Internal server error' });
+//       }
+
+//       if (results.length === 0) {
+//         return res.status(401).json({ message: 'Invalid username or password' });
+//       }
+
+//       const user = results[0];
+//       console.log(user)
+
+//       // Compare the provided password with the hashed password in the database
+//       const isMatch = await bcrypt.compare(password, user.password);
+//       if (!isMatch) {
+//         return res.status(401).json({ message: 'Invalid username or password' });
+//       }
+
+//       // Generate a token
+//       const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '24h' });
+//       return res.json({ token ,username: user.username , userType: user.type});
+//     });
+//   } catch (error) {
+//     console.error('Error logging in:', error);
+//     return res.status(500).json({ message: 'Internal server error' });
+//   }
+// });
 
 // SignUp API Route
 app.post("/api/signUp", SignUp);
