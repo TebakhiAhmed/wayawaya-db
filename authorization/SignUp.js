@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 
 const signUp = async (req, res) => {
   const { userName, password, userType } = req.body;
+  const dataComing = {userName,password,userType};
+  console.log(dataComing)
 
   if (!userName || !password || !userType) {
     return res.status(400).json({ message: 'Missing required fields' });
@@ -11,6 +13,7 @@ const signUp = async (req, res) => {
   try {
     // Check if the username already exists
     const [results] = await db.query('SELECT * FROM users WHERE username = ?', [userName]);
+    console.log([results]);
 
     if (results.length > 0) {
       return res.status(400).json({ message: 'Username already exists' });
