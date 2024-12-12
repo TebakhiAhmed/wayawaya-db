@@ -459,85 +459,88 @@ app.post("/api/update-product-quantity", async (req, res) => {
   }
 });
 
-app.get("/response", (req, res) => {
-  const { orderDetails, totalPrice, paymentMethod, dateTime } = req.query;
+app.get("/response", async (req, res) => {
+  try {
+    const { orderDetails, totalPrice, paymentMethod, dateTime } = req.query;
 
-  // Parse orderDetails as it was sent as a string
-  const parsedOrderDetails = JSON.parse(orderDetails);
+    // Parse orderDetails as it was sent as a string
+    const parsedOrderDetails = JSON.parse(orderDetails);
 
-  // Construct the content field dynamically
-  const contentLines = [];
+    // Construct the content field dynamically
+    const contentLines = [];
 
-  // Add header
-  contentLines.push("Order Details:");
+    // Add header
+    contentLines.push("Order Details:");
 
-  // Add current date and time
-  contentLines.push(`Date & Time: ${dateTime}`);
+    // Add current date and time
+    contentLines.push(`Date & Time: ${dateTime}`);
 
-  // Add order items
-  parsedOrderDetails.forEach((item) => {
-    contentLines.push(
-      `${item.product_name} x ${item.quantity} = ${(item.product_price * item.quantity).toFixed(2)} Kc`
-    );
-  });
+    // Add order items
+    parsedOrderDetails.forEach((item) => {
+      contentLines.push(
+        `${item.product_name} x ${item.quantity} = ${(item.product_price * item.quantity).toFixed(2)} Kc`
+      );
+    });
 
-  // Add total price
-  contentLines.push(`Total: ${parseFloat(totalPrice).toFixed(2)} Kc`);
+    // Add total price
+    contentLines.push(`Total: ${parseFloat(totalPrice).toFixed(2)} Kc`);
 
-  // Add payment method
-  contentLines.push(`Payment Method: ${paymentMethod}`);
+    // Add payment method
+    contentLines.push(`Payment Method: ${paymentMethod}`);
 
-  // Join all lines into a single string
-  const content = contentLines.join("\n");
-  // console.log(contentLines)
-  // console.log(content)
-  // Create the printer object
-  const response = {}
-  const firstObj = {
-    type: 1,       // Image
-    path: 'https://wayawaya-db.com/printer-logo.png', // Line content C:\Users\mrteb\OneDrive\Desktop\database-resturant\lastVersionOfDataBase\DataBase\c-side\src\content\waya-logo.png
-    align: 1,      // Center align
+    // Join all lines into a single string
+    const content = contentLines.join("\n");
+
+    // Create the printer object
+    const response = {};
+    const firstObj = {
+      type: 1, // Image
+      path: 'https://wayawaya-db.com/printer-logo.png', // Line content
+      align: 1, // Center align
+    };
+
+    const spacePrinter = {
+      type: 0,
+      content: ' <br /> <br />', // Line content
+      bold: 0,
+      align: 0, // Center align
+      format: 0, // small
+    };
+
+    // Dynamically create printer objects
+    const printerObjects = contentLines.map((line, index) => ({
+      type: 0, // Text
+      content: line, // Line content
+      bold: index === 0 ? 1 : 0, // Make the first line bold
+      align: 0, // Center align
+      format: 0, // small
+    }));
+
+    // Shift all indices by one to make room for firstObj
+    for (let i = printerObjects.length - 1; i >= 0; i--) {
+      response[i + 1] = response[i];
+    }
+    response[0] = firstObj;
+
+    // Fill the response with printerObjects
+    printerObjects.forEach((obj, index) => {
+      response[index + 1] = obj; // Shifted indices due to firstObj
+    });
+
+    response[printerObjects.length + 1] = spacePrinter;
+
+    console.log(response);
+
+    // Simulate asynchronous operation for demonstration (e.g., fetching data)
+    await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate delay (remove if unnecessary)
+
+    // Respond with the printer object
+    res.json(response);
+  } catch (error) {
+    console.error("Error in /response:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-
-
-  const spacePrinter = {
-    type: 0,
-    content: ' <br /> <br />', // Line content
-    bold: 0,
-    align: 0,      // Center align
-    format: 0      //small
-  }
-
-
-  // Dynamically create printer objects
-  const printerObjects = contentLines.map((line, index) => ({
-    type: 0,       // Text
-    content: line, // Line content
-    bold: index === 0 ? 1 : 0, // Make the first line bold
-    align: 0,      // Center align
-    format: 0      //small
-  }));
-
-  // Shift all indices by one to make room for firstObj
-  for (let i = printerObjects.length - 1; i >= 0; i--) {
-    response[i + 1] = response[i];
-  }
-  response[0] = firstObj;
-
-  // Fill the response with printerObjects
-  printerObjects.forEach((obj, index) => {
-    response[index + 1] = obj; // Shifted indices due to firstObj
-  });
-
-
-
-  response[printerObjects.length + 1] = spacePrinter;
-
-  console.log(response);
-  // Respond with the printer object
-  res.json(response);
 });
-
 
 
 
