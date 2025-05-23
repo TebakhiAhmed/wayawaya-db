@@ -1,5 +1,5 @@
 import db from '../db.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const signUp = async (req, res) => {
   const { userName, password, userType } = req.body;

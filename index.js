@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import moment from "moment-timezone";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import SignUp from './authorization/SignUp.js'
 import db from "./db.js"; // Ensure db.js correctly exports the MySQL connection pool
